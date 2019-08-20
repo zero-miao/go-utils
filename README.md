@@ -23,3 +23,6 @@ rotate 实现了定时切割的功能.
 也可以自定义 ErrorType, 然后通过 RegisterError 来注册. 
 
 注意 ErrorType 中的 Code 不能重复, 会在注册时进行检查. 
+
+## worker
+异步定时任务. 具体参见 `worker/readme.md`
