@@ -1,0 +1,33 @@
+logging:
+  app:  # module 名称.
+    handler:
+      - typ: file  # 写文件
+        filename: "/dev/null"
+        format: "console"
+        level: "debug"
+      - typ: rotate_file  # 可切割的文件.
+        filename: "/tmp/access.log"
+        level: "debug"
+        duration: "24h"  # 每整 24h 切割一次, 即每天 0 点切割.
+        replica: 3  # 保留的历史文件数.
+        format: console
+      - typ: rotate_file
+        filename: "/tmp/error.log"
+        level: "error"
+        duration: "24h"
+        replica: 3
+        format: console
+      - typ: email  # 邮件, 将日志内容写入到邮件中, 并发送给 email 模块配置的管理员.
+        level: "error"
+        format: "json"
+        str_field:  # 邮件标题, 格式 `key=value;key=value`
+          - key: test
+            value: the_test  # 固定值
+          - key: test_ip
+            dynamic_value: ipv4  # yamlInit 时动态生成.
+    caller: true  # 是否打印日志在代码中的位置.
+    str_field:  # 日志内容中, 添加 key:value 这样的字段.
+      - key: test
+        value: the_test  # 固定值
+      - key: test_ip
+        dynamic_value: ipv4  # yamlInit 时动态生成.

@@ -1,0 +1,63 @@
+0.1
+初始化
+.gitignore
+readme.md
+
+0.2
+email 模块
+
+0.3
+logger 模块
+
+0.4
+grpc_error 模块
+
+0.4.1
+fix logger.rotate: 文件内容丢失 bug,
+刚启动 rotate_file 时, 不执行 rotate
+
+bug: 刚启动, 先写入了文件, 然后执行协程初始化 rotate. 生成前一天的 rotate 文件, 然后到 0 点执行 rotate 时, 再一次生成 rotate 文件.
+这次生成的与第一次生成的名称相同. 导致第一次的文件丢失. 而且会导致最后删除文件异常.
+
+    history 队列 cap=3
+    第一天, 第一次: [A]
+    第一天, 第二次: [A, A]
+    第二天, 第三次: [A, A, A+1]
+    第三天, 第四次: [A, A+1, A+2] 删除 A.
+    第四天, 第五次: [A+1, A+2, A+3] 删除 A. 结果发现 A 并不存在, error 邮件: 重置
+    第五天, 第六次: [A+2, A+3, A+4] 删除 A+1. 一切恢复正常.
+
+    实际场景: 第一天 2019-06-29T11:40:37Z
+    于是 第四天 2019-07-02 收到报警 `重置`. 原因是 28 号的文件(A) 不存在.
+
+0.5
+worker 模块, 高度定制化异步任务模块
+
+0.5.1
+修改日志等级.
+
+0.6
+logger 模块增加全局默认字段(module.`str_field`), 以及 email_handler 增加标题字段, 可以通过配置(module.handler.email.`str_field`)来设置;
+email 模块增加选项, 控制是否在标题栏追加 ip.
+
+完整配置参见各个模块的 sample.yaml
+
+0.6.1
+规范化 ip 的获取.
+email 模块 SendMail 方法也受 ip 选项影响.
+
+场景与用法:
+记:
+
++ logger.module 为使日志体包含默认字段的选项.
++ logger.handler.email 为向 email 头部增加 ip 的选项.
++ email.append_ip_subject 为所有追加邮件头追加 ip 的选项.
+
+场景:
+
++ 如果仅希望在主动调用 email 方法时, 追加 ip. 则需要手动追加(没有选项支持), 并关闭上述三个选项.
++ 如果希望所有邮件都带有 ip, 则打开 email.append_ip_subject, 不填 logger.handler.email 的 ip 字段(避免重复).
++ 如果仅希望通过日志的 email handler 发送的邮件带有 ip, 关闭 email.append_ip_subject, 配置 logger.handler.email
++ 如果希望所有日志体都带有 ip, 打开 logger.module,
+
+这些选项主要是为了, 在 k8s 多 pod 里, 发邮件报警的时候知道是哪台机器. 因此最主要的功能是 email.append_ip_subject

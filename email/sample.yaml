@@ -1,0 +1,10 @@
+mail_server: "smtp.exmail.qq.com"
+mail_port: 465
+mail_user: "xxxxxxxx"
+mail_password: "xxxxxxxx"
+mail_subject_prefix: "[app-local]"  # 调用 `SendServerMail` 时邮件标题统一前缀.
+mail_default_from: "zabbix"
+mail_admins:  # 调用 `SendServerMail` 时的收件人.
+  - name: "ao.mei"
+    email: "ao.mei@gaea.com"
+append_ip_subject: true  # 标题上是否追加本机 ipv4 的地址(非回环, 广播地址).
