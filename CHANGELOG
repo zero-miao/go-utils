@@ -61,3 +61,6 @@ email 模块 SendMail 方法也受 ip 选项影响.
 + 如果希望所有日志体都带有 ip, 打开 logger.module,
 
 这些选项主要是为了, 在 k8s 多 pod 里, 发邮件报警的时候知道是哪台机器. 因此最主要的功能是 email.append_ip_subject
+
+0.7beta
+消息队列模块
