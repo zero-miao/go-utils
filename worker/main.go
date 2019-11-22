@@ -38,7 +38,7 @@ func Manage(sig <-chan ControlSig) {
 		go func(pool PoolInterface) {
 			defer func() {
 				if err := recover(); err != nil {
-					logger.SugarL("worker").Errorw("pool panic", "pool", pool.Detail())
+					logger.SugarL("worker").Errorw("pool panic", "err", err, "pool", pool.Detail())
 				}
 				runningPool--
 			}()

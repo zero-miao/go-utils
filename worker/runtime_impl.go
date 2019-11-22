@@ -216,7 +216,7 @@ func (p *RuntimePool) Run(ctx context.Context) {
 					// counter 为当前协程 id.
 					defer func() {
 						if err := recover(); err != nil {
-							logger.SugarL("worker").Errorw("pool worker panic", "pool", p.Detail())
+							logger.SugarL("worker").Errorw("pool worker panic", "err", err, "pool", p.Detail())
 							rest = false
 						}
 					}()
