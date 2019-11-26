@@ -4,6 +4,7 @@ import (
 	"github.com/zero-miao/go-utils/logger"
 	"sync"
 	"testing"
+	"time"
 )
 
 // ==========================
@@ -12,6 +13,30 @@ import (
 // @File   : example_test.go
 // @Project: utils/cron
 // ==========================
+
+func TestTimeCondition(t *testing.T) {
+	logger.YamlInit([]byte(`logging:
+  worker:
+    handler:
+      - typ: file
+        filename: "/dev/stdout"
+        format: "console"
+        level: "debug"
+    caller: true
+`))
+	Register("normal_short1", &NormalShortWorker{}, []ConditionInterface{&MaxCountCondition{4}, &TimeCondition{time.Second * 5, time.Second * 2}})
+	//Register("normal_short2", &NormalShortWorker{}, []ConditionInterface{&MaxCountCondition{10}, &ConcurrencyCondition{1}})
+	//Register("normal_short3", &NormalShortWorker{}, []ConditionInterface{&MaxCountCondition{10}, &ConcurrencyCondition{1}})
+
+	sig := make(chan ControlSig, 1)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		Manage(sig) // manage 会自己退出. (只要里面没有 pool 在运行)
+	}()
+	wg.Wait()
+}
 
 func TestNormalShortWorker_Run(t *testing.T) {
 	logger.YamlInit([]byte(`logging:

@@ -11,14 +11,20 @@ import (
 // @Project: utils/cron
 // ==========================
 
-// 时间点控制
+// 时间点控制, 比如每天 1 点执行: TimeInterval=24h, Offset=1h
 type TimeCondition struct {
-	// 整 BaseDuration 执行一次.
+	// 每整 TimeInterval 执行一次.
 	TimeInterval time.Duration
+	// TimeInterval 内的一个时间偏移.
+	Offset time.Duration
 }
 
 func (c *TimeCondition) Init(static map[string]interface{}) {
+	if c.TimeInterval < c.Offset {
+		panic("TimeCondition.TimeInterval > TimeCondition.Offset")
+	}
 	static["base_time"] = c.TimeInterval.String()
+	static["base_offset"] = c.Offset.String()
 }
 
 // 需要记录下, 上次运行时间
@@ -36,7 +42,7 @@ func (c *TimeCondition) Check(store RuntimeInterface) CheckStatus {
 		} else {
 			store.SetRuntime(RuntimePair{
 				Key:   "next_to_run",
-				Value: timeToCheck.Truncate(c.TimeInterval).Add(c.TimeInterval),
+				Value: timeToCheck.Truncate(c.TimeInterval).Add(c.TimeInterval + c.Offset),
 				SetXX: true,
 			})
 			if du > time.Second {
@@ -48,7 +54,7 @@ func (c *TimeCondition) Check(store RuntimeInterface) CheckStatus {
 	} else {
 		store.SetRuntime(RuntimePair{
 			Key:   "next_to_run",
-			Value: timeToCheck.Truncate(c.TimeInterval).Add(c.TimeInterval),
+			Value: timeToCheck.Truncate(c.TimeInterval).Add(c.TimeInterval + c.Offset),
 			SetNX: true,
 		})
 		return CheckAbort

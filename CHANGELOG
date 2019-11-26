@@ -67,3 +67,6 @@ email 模块 SendMail 方法也受 ip 选项影响.
 
 0.7.1
 增加 panic 时, err 的日志.
+
+0.8
+worker 模块, TimeCondition 支持 Offset.
